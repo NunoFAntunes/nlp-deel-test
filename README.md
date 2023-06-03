@@ -4,14 +4,14 @@
 
 On a quick data analysis, we have found the following special cases in Users data:
 
-    - There is one user without a name
-    - Some users have middle name, others middle name letter, others no middle name
-    - The user Audrey (crHOEW9iLZ) only has one name
-    - Some users have their names altogether, for example AuroraPowell (i52RbjL6om)
-    - The user with the name Isaac Bell Deel and Daniel Deel, we must be sure if Deel is his actual surname or if it was an input error on the Deel system, including company name. (6fc89iJwho and FhRDVhmleA). This may also be a problem for our text matching algorithm. Same with Andrew Rodeel. (Hl7n5MGoJo)
-    - There may be some mispelled names. Is Penelop a mispelling of Penelope? (7wgTardvTI). Same with Andrw Richardson (qBCElYF454)
-    - One user has special characters in its name, Μarιa Perikleous (Qg12EWasd)
-    - There are two users with the same name and different IDs, Isabella Wilson (ToAD2rzvGA and VfY9DmIkiL)
+- There is one user without a name
+- Some users have middle name, others middle name letter, others no middle name
+- The user Audrey (crHOEW9iLZ) only has one name
+- Some users have their names altogether, for example AuroraPowell (i52RbjL6om)
+- The user with the name Isaac Bell Deel and Daniel Deel, we must be sure if Deel is his actual surname or if it was an input error on the Deel system, including company name. (6fc89iJwho and FhRDVhmleA). This may also be a problem for our text matching algorithm. Same with Andrew Rodeel. (Hl7n5MGoJo)
+- There may be some mispelled names. Is Penelop a mispelling of Penelope? (7wgTardvTI). Same with Andrw Richardson (qBCElYF454)
+- One user has special characters in its name, Μarιa Perikleous (Qg12EWasd)
+- There are two users with the same name and different IDs, Isabella Wilson (ToAD2rzvGA and VfY9DmIkiL)
 
 ## Transactions
 
@@ -40,8 +40,8 @@ On a quick data analysis, we have found the following special cases in Transacti
 
 # Task 1:
 
-Input: User name
-Output: List of transactions associated with the user.
+- Input: User name
+- Output: List of transactions associated with the user.
 
 ## Approach:
 
