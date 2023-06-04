@@ -6,6 +6,8 @@ import os
 
 TRANSACTIONS_DATA_PATH = os.path.join(os.pardir, 'data', 'transactions.csv')
 
+
+# Regex expressions to remove unnecessary tokens from the description
 references = "ref .{10,25}\/\/.{10,20}\/\/c\s*n\s*t\s*r|ref .{10,25}\/|\d{9,15}\/\/c\s*n\s*t\s*r"
 other_tokens = "for deel|to deel|deel|from|payment|transfer|received|\d{1,10}"
 multi_spaces = "\s\s+"
@@ -13,14 +15,18 @@ end_spaces = "^\s+|\s+$"
 
 punctuation_without_slashes = '!"#$%&\'()*+,-.:;<=>?@[]^_`{|}~'
 
+# Transforms the description to lowercase, removes punctuation, transforms other alphabets to the latin representation and transforms multiple spaces into one.
 def clean_description(s):
     s = unidecode(s).casefold()
     s = s.translate(s.maketrans({k: ' ' for k in punctuation_without_slashes}))
     return re.sub('\s\s+', ' ', s)
 
+# Removes all punctuation, including slashes.
 def remove_punctuation(s):
     return s.translate(s.maketrans({k: ' ' for k in string.punctuation}))
 
+# Removes all known tokens from the description, and transforms multiple spaces into one.
+# All data treatment is in one single function that is applied to the dataset using "apply()", so we only have to iterate the dataset once.
 def find_user_in_description(s):
     s = unidecode(s).casefold() # Transforms unicode to ascii, dealing with accents and foreign languages, and transforms it to lowercase.
     s = re.sub(references, '', s) # Removes transaction reference code.

@@ -41,7 +41,7 @@ def calculate_similarity(row_embedding, query_embedding):
 def search_closest_sentence(s, df_id_vs_embeddings):
     query_embedding = model.encode(clean_description(s)) # Using the same cleaning function for the query.
     df_id_vs_embeddings['similarity'] = df_id_vs_embeddings['embeddings'].apply(calculate_similarity, query_embedding=query_embedding)
-    results_filtered = df_id_vs_embeddings[df_id_vs_embeddings['similarity'] > 0.51]
+    results_filtered = df_id_vs_embeddings[df_id_vs_embeddings['similarity'] > 0.5]
     results_filtered.sort_values(by='similarity', ascending=False, na_position='last', inplace=True)
     records = results_filtered.to_records(index=False)
     list_of_hits = []

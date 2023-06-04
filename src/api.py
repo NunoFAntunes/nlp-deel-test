@@ -19,8 +19,9 @@ df_transactions = pd.read_csv(TRANSACTIONS_DATA_PATH)
 df_id_vs_embeddings, tokens_size = encode_client_transactions(df_transactions)
 
 
+# This is the endpoint for the first exercise. It receives a client name and returns a list of transactions that match the client name.
 @app.get("/client_transactions/name={client_name}")
-def get_client_transactions(client_name):
+async def get_client_transactions(client_name:str):
     client_name = unidecode(client_name).casefold()
     transaction_list, total_matches = search_client_transactions(df_transactions, client_name)
     return ClientTransactionsEx1(
@@ -29,8 +30,9 @@ def get_client_transactions(client_name):
     )
     
 
-@app.get("/client_transactions/query={query}")
-def get_closest_transactions(query):
+# This is the endpoint for the second exercise. It receives a query and returns a list of transactions that match the query.
+@app.get("/client_transactions/query")
+async def get_closest_transactions(query:str):
     transaction_list = search_closest_sentence(query, df_id_vs_embeddings)
     return ClientTransactionsEx2(
         transactions=transaction_list,

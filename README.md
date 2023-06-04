@@ -1,5 +1,36 @@
 
 # How to run the code
+
+## Outside docker:
+1. Create a python 3.11 virtual environment with
+```  
+python3.11 -m venv <virtual-environment-name>
+```
+2. Activate the venv with
+```
+source <virtual-environment-name>/bin/activate
+```
+ on Linux or
+```
+<virtual-environment-name>\Scripts\activate.bat
+```
+on Windows.
+3. Install the requirements with
+```
+pip install -r requirements.txt
+```
+4. Run the cleaning scripts (optional, the cleaned files are already in the data folder)
+```
+cd src
+python clean_users.py
+python clean_transactions.py
+```
+5. Run the API with
+```
+cd src
+uvicorn api:app --port 8123
+```
+The api swagger frontend will be available at http://localhost:8123/docs for testing.
 ## Docker:
 In the project root directory, run the following commands:
 
@@ -8,6 +39,7 @@ docker build -t deel-test .
 docker run -dp 8123:8000 deel-test
 ```
 The api swagger frontend will be available at http://localhost:8123/docs for testing.
+
 
 
 # Code Structure
@@ -180,6 +212,7 @@ For inference, the following is performed:
 ## Limitations:
 
 - Considering the description has a lot of structural mistakes, the embeddings may not be very accurate. For example, if the description is "from or deel ref rw6j3kybdwn7acc// john mitchell 77152073245//cntr", the embedding will be very different from the embedding of "from john mitchell". This may be solved by using a more complex cleaning process, which would be more robust to these mistakes. 
+- I did not sanitize the query input against forward slashes, meaning searches with forward slashes will not work for now.
 
 
 # Task 3:
@@ -200,4 +233,4 @@ For inference, the following is performed:
 - Apply a more complex cleaning process on the descriptions, structuring them in a more organized way, before calculating the embeddings. This can be used by repurposing the regex developed for detecting reference numbers and developing other algorithms for detection of other tokens included in the description.
 - Develop the database connector.
 - Develop a job that calculates embeddings for every description and stores them in the database (if this system is used very often).
-
+- Implement a system where the user can select which of the search results matched the query that was inputted. If we have a dataset with this matching, we may be able to later improve the system with a supervised learning approach.
