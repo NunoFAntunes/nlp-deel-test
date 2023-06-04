@@ -53,9 +53,13 @@ There are two ways to approach this problem:
 Considering we have access to this users data, the 2nd option seems like it would yield better results, since we already know what we are looking for in the transaction descriptions. Additionally, the description of the transaction is very short, with a lot of mistakes and sometimes with sentence a structure that does not make sense. The names are also sometimes jumbled in the text (e.g. the first name and the last name have words or text in between) This leads me to believe NER might not give the best results.
 
 
+The cleaning of descriptions and usernames should run as a recurring task or every time a new transaction is added. 
+It should not run when an API call is made, in order to avoid unnecessary processing and to improve the performance of the API. This is assuming this API is used often.
+
+
 ## Algorithm:
 
-1. Users name cleaning
+1. User name cleaning
     1. Handle other alphabets, accents, etc
     2. Convert to lowercase
 2. Transaction description cleaning
@@ -65,9 +69,15 @@ Considering we have access to this users data, the 2nd option seems like it woul
     4. Remove unnecessary spaces 
 3. Compare users name with description, using fuzzy matching (approximate string matching)
 
+### User name cleaning
+I have used the unidecode library to convert all characters to their closest ASCII representation. This is useful to handle names with accents, other alphabets, etc. For example, the name Μarιa Perikleous is converted to Maria Perikleous.
+
+I then convert the name to lowercase, to make it easier to compare with the transaction description.
 
 
-## Steps
+### Transaction cleaning
+
+Similarly to the usernames, I begin by converting all characters to their closest ASCII representation and then convert the text to lowercase.
 
 In order to maximize the probability of finding names in the text, and considering surnames can be very varied and hard to find or match against specific rules (especially in this case, where we can have misspelled surnames, written in leet, detached from the first name), I have opted to remove all the elements from the text that I can identify as definitely not being part of the name.
 
@@ -110,11 +120,15 @@ I then removed all tokens that I am sure are not the name of the person, along w
 for deel|to deel|deel|from|payment|transfer|received|\d{1,10}
 ```
 
-Ideally, we should first try to associate the transaction data with the Users of the platform, in the users.csv file.
-The input username should be validated, by matching it against the users.csv file. If the user exists, then we return all transactions associated with this user.
-The mapping between a specific user and its transactions should be done apriori, not when the request is made to the API, in order to reduce the computation time. This means we should run our algorithm once, creating a dictionary mapping between users and transactions. If new transactions are added every day, we can set up a periodic task to continuing building upon the dictionary mapping, by running these new transactions through the built algorithm. This is assuming this system/API is used often.
-The algorithm could be ran as a periodic task on all registered transactions in two ways:
+### Fuzzy matching
+We use a fuzzy matching algorithm, that tries to find the similarity between the name given and the found untagged elements in the transaction description. This algorithm returns a confidence score that, if higher than 60%, we include in the API results.
+The fuzzy algorithm uses the Levenshtein distance to calculate word similarities. We have used a function that is agnostic to the word order, capitals and number of words (meaning "Charles Smith", "Smith Charles" and "smith 123 charles 456" should all have 100% similarity).
 
-- Immediately when a transaction is added to the system, it is mapped to a user by the algorithm
-- A periodic task can be setup to run at night or in periods of lower system activity, takes the batch of transactions added that day, and maps them to users.
-  Since deel has clients all over the world, we would have to study on the best times to run this periodic task, in order to not affect the system performance, were we to opt for the later solution.
+
+## Limitations:
+
+- The cleaning of descriptions is very aggressive, which for this use case, with the given users is not a problem but may be in a production system. For example, we filter out "deel", "from", "payment", "received", "transfer". In case any user has a name that includes any of these words (let's say Peter Deelson, Michel Afrom), they will be filtered out. There are ways to mitigate this problem, by matching only when these words are surrounded by spaces.
+- The fuzzy matching algorithm is not perfect. It may return false positives, especially when the name is very common. For example, if the user name is "John Smith", the algorithm may return a high similarity score for "John Smith" and "John Smithson". 
+- Blindly trusting the algorithm for description and user matching would not be a good idea, it should always be validated by a human.
+- If the description format changes too much, the algorithm may fail.
+- If the description is in another language, the algorithm is not prepared to filter these tokens and will fail. 
