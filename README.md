@@ -1,5 +1,5 @@
 
-# How to run the code
+# How to run
 
 ## Outside docker:
 1. Create a python 3.11 virtual environment with
@@ -15,6 +15,7 @@ source <virtual-environment-name>/bin/activate
 <virtual-environment-name>\Scripts\activate.bat
 ```
 on Windows.
+
 3. Install the requirements with
 ```
 pip install -r requirements.txt
