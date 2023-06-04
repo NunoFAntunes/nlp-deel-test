@@ -56,13 +56,13 @@ Considering we have access to this users data, the 2nd option seems like it woul
 ## Algorithm:
 
 1. Users name cleaning
-  1. Handle other alphabets, accents, etc
-  2. Convert to lowercase
+    1. Handle other alphabets, accents, etc
+    2. Convert to lowercase
 2. Transaction description cleaning
-  1. Handle other alphabets, accents, etc
-  2. Convert to lowercase
-  3. Remove all elements that are not part of the name (e.g. reference, from, to, numbers, etc)
-  4. Remove unnecessary spaces 
+    1. Handle other alphabets, accents, etc
+    2. Convert to lowercase
+    3. Remove all elements that are not part of the name (e.g. reference, from, to, numbers, etc)
+    4. Remove unnecessary spaces 
 3. Compare users name with description, using fuzzy matching (approximate string matching)
 
 
