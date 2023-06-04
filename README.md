@@ -47,23 +47,25 @@ On a quick data analysis, we have found the following special cases in Transacti
 ## Approaches considered:
 
 There are two ways to approach this problem:
-
 1. We can start with the transaction description, identify named entities (NER) and try to match them with the user name.
 2. We can start with the user name from users.csv, and try to match it with all transaction descriptions, in order to find any matches.
 
 Considering we have access to this users data, the 2nd option seems like it would yield better results, since we already know what we are looking for in the transaction descriptions. Additionally, the description of the transaction is very short, with a lot of mistakes and sometimes with sentence a structure that does not make sense. The names are also sometimes jumbled in the text (e.g. the first name and the last name have words or text in between) This leads me to believe NER might not give the best results.
 
+
 ## Algorithm:
 
 1. Users name cleaning
-1. Handle other alphabets, accents, etc
-1. Convert to lowercase
-1. Transaction description cleaning
-1. Handle other alphabets, accents, etc
-1. Convert to lowercase
-1. Remove all elements that are not part of the name (e.g. reference, from, to, numbers, etc)
-1. Remove unnecessary spaces
-1. Compare users name with description, using fuzzy matching (approximate string matching)
+  1. Handle other alphabets, accents, etc
+  2. Convert to lowercase
+2. Transaction description cleaning
+  1. Handle other alphabets, accents, etc
+  2. Convert to lowercase
+  3. Remove all elements that are not part of the name (e.g. reference, from, to, numbers, etc)
+  4. Remove unnecessary spaces 
+3. Compare users name with description, using fuzzy matching (approximate string matching)
+
+
 
 ## Steps
 
