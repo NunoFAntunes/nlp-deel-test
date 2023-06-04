@@ -37,19 +37,76 @@ On a quick data analysis, we have found the following special cases in Transacti
 - Misspelled names Davd # Carter
 - Broken up names Andrew Richar dson
 - Text with no name in transactions
+- After ref, we may have names instead of transaction reference.
 
 # Task 1:
 
 - Input: User name
 - Output: List of transactions associated with the user.
 
-## Approach:
+## Approaches considered:
 
 There are two ways to approach this problem:
-1- We can start with the transaction description, identify named entities (NER) and try to match them with the user name.
-2- We can start with the user name from users.csv, and try to match it with all transaction descriptions, in order to find any matches.
 
-Considering we have access to this users data, the 2nd option seems like it would yield better results, since we already know what we are looking for in the transaction descriptions.
+1. We can start with the transaction description, identify named entities (NER) and try to match them with the user name.
+2. We can start with the user name from users.csv, and try to match it with all transaction descriptions, in order to find any matches.
+
+Considering we have access to this users data, the 2nd option seems like it would yield better results, since we already know what we are looking for in the transaction descriptions. Additionally, the description of the transaction is very short, with a lot of mistakes and sometimes with sentence a structure that does not make sense. The names are also sometimes jumbled in the text (e.g. the first name and the last name have words or text in between) This leads me to believe NER might not give the best results.
+
+## Algorithm:
+
+1. Users name cleaning
+1. Handle other alphabets, accents, etc
+1. Convert to lowercase
+1. Transaction description cleaning
+1. Handle other alphabets, accents, etc
+1. Convert to lowercase
+1. Remove all elements that are not part of the name (e.g. reference, from, to, numbers, etc)
+1. Remove unnecessary spaces
+1. Compare users name with description, using fuzzy matching (approximate string matching)
+
+## Steps
+
+In order to maximize the probability of finding names in the text, and considering surnames can be very varied and hard to find or match against specific rules (especially in this case, where we can have misspelled surnames, written in leet, detached from the first name), I have opted to remove all the elements from the text that I can identify as definitely not being part of the name.
+
+One of these elements is the reference. References always start with ref, followed by 15 characters, two forward slashes, 11 or 12 digits, another two forward slashes and cntr.
+
+To separate the ref number from the rest of the text I have created a regex which managed to cover 100% of the references in the text and not catch anything else.
+The initial regex, which catches 99% of all cases is the following:
+
+```
+ref .{10,25}\/\/.{10,20}\/\/c\s*n\s*t\s*r
+```
+
+This regex also catches cases where the reference has white spaces in it, including cases which have spaces within the "cntr" token. This token is a crucial part to tag the string as it indicates the end of a reference. In order to solve this, we considered all forms of cntr with white spaces, using \s\*.
+
+This approach did not work in the following case:
+
+> from or deel, ref rw6j3kybdwn7acc// john mitchell 77152073245//cntr
+
+In this case, the reference was split in between the first and second part with the person's name, which we cannot remove. It seems like the system may be in some way concatenating the first and second part of the reference and in this specific case, the name was mistakenly added between these components. For this reason, in order to also remove misformed references, we include two extra regex rule that try to match the two halves of the reference and remove them independently. These two rules are the following:
+
+```
+ref .{10,25}\/
+```
+
+```
+\d{9,15}\/\/c\s*n\s*t\s*r
+```
+
+Note that in this final regex, we cannot match everything before "cntr" to be part of the reference, we can only match digits, using \d. This is because otherwise the regex would match text that is not part of the reference, such as the name of the person.
+
+The final regex is the following:
+
+```
+ref .{10,25}\/\/.{10,20}\/\/c\s*n\s*t\s*r|ref .{10,25}\/|\d{9,15}\/\/c\s*n\s*t\s*r
+```
+
+I then removed all tokens that I am sure are not the name of the person, along with numbers and digits that are definitely not person's names, with the following regex:
+
+```
+for deel|to deel|deel|from|payment|transfer|received|\d{1,10}
+```
 
 Ideally, we should first try to associate the transaction data with the Users of the platform, in the users.csv file.
 The input username should be validated, by matching it against the users.csv file. If the user exists, then we return all transactions associated with this user.
@@ -59,11 +116,3 @@ The algorithm could be ran as a periodic task on all registered transactions in 
 - Immediately when a transaction is added to the system, it is mapped to a user by the algorithm
 - A periodic task can be setup to run at night or in periods of lower system activity, takes the batch of transactions added that day, and maps them to users.
   Since deel has clients all over the world, we would have to study on the best times to run this periodic task, in order to not affect the system performance, were we to opt for the later solution.
-
-## Algorithm:
-
-1- Transaction description cleaning
-2- NER on transactions, find out user names
-3- Setup list of possible user names
-4- Matching with users.csv
-5- Return transactions associated with user
